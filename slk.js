@@ -8,7 +8,6 @@ function Slack(opts){
     self.slk_hook_url = opts.slk_hook_url;
     self.slk_channel = opts.slk_channel;
     self.slk_user_name = opts.slk_user_name;
-    self.slk_icon = opts.slk_icon;
 };
 
 Slack.prototype.sendMessage = function(message){
@@ -20,8 +19,7 @@ Slack.prototype.sendMessage = function(message){
         body: {
             "channel": self.slk_channel,
             "username": self.slk_user_name,
-            "text": message,
-            "icon_emoji": self.slk_icon
+            "text": message
         },
         json: true
     });
