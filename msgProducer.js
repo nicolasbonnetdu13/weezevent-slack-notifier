@@ -45,6 +45,42 @@ SlackMessageProducer.prototype.produceMessageFrom = function(persistedParticipan
     return msg;
 };
 
+SlackMessageProducer.prototype.produceMessageFrom = function(upToDateFetchedParticipants){
+    var thresholdDate = 0;
+
+    var allParticipantsByTicket = _(upToDateFetchedParticipants)
+        // First, filtering every fetched participants already present in persisted participants
+        .filter(function(bdxioParticipant){
+            return Date.parse(bdxioParticipant.create_date) > thresholdDate;
+            // Grouping by ticket type
+        }).groupBy('ticket').value();
+
+    var msg = ':tada:',
+        ticketTypes = _.keys(allParticipantsByTicket),
+        newParticipantsCount = _(allParticipantsByTicket).values().flatten().value().length,
+        plural = newParticipantsCount>=2;
+
+    if(ticketTypes.length === 0) {
+        // Returning null won't trigger slack bot
+        return null;
+    } else if(ticketTypes.length === 1) {
+        // If we only have 1 type of ticket price concerned, using the one-line-formatted message
+        msg += newParticipantsCount+" place"+(plural?"s":"")+" de type "+ticketTypes[0]+" se sont vendue"+(plural?"s":"")+" à : "+writeParticipants(allParticipantsByTicket[ticketTypes[0]]);
+    } else {
+        // If we have more than 1 type of tickets, using the multi-line big message
+        msg += newParticipantsCount+" place se sont vendue"+(plural?"s":"")+" répartie"+(plural?"s":"")+" comme suit :\n";
+        msg += _.reduce(allParticipantsByTicket, function(result, value, key) {
+            var plural = value.length>=2;
+            result += "- "+value.length+" place"+(plural?"s":"")+" "+key+" : "+writeParticipants(value)+"\n";
+            newParticipantsCount += value.length;
+            return result;
+        }, "");
+    }
+
+    // Because emojis are important on slack ! \o/
+    return msg;
+};
+
 SlackMessageProducer.prototype.convertWZParticipantsToBDXIOParticipants = function(wzParticipants, wzTickets) {
     var ticketsById = _.keyBy(wzTickets, 'id');
 

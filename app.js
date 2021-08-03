@@ -60,6 +60,25 @@ server.get('/checkParticipants', function (req, res, next) {
   res.send(200)
   return next();
 });
+server.post('/allParticipants', function (req, res, next) {
+  Promise.all([
+    we.fetchWZParticipants(),
+    we.fetchWZEventTickets()
+  ]).then(function(promResults) {
+    var wzParticipants = promResults[0];
+    var wzTickets = promResults[1];
+    var bdxioParticipants = msgProducer.convertWZParticipantsToBDXIOParticipants(wzParticipants, wzTickets);
+      
+    console.log("wzParticipants: %s", JSON.stringify(bdxioParticipants));
+
+    var slackMsg = msgProducer.produceMessageFrom(bdxioParticipants);
+    if(slackMsg){
+        slk.sendMessage(slackMsg);
+    }
+  }, (error) => console.error(error));
+  res.send(200)
+  return next();
+});
 
 
 we.init().then(function(){
