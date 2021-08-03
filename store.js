@@ -15,84 +15,51 @@ function Store(opts){
         }
     });
 
-    self.sequelize.authenticate().then(() => { 
-        console.log('Connection has been established successfully.');
-    }).catch(err => {
-        console.log('Unable to connect to the database:', err);
-    });
-    const User = self.sequelize.define('user', {
-        firstName: {
-            type: Sequelize.STRING,
-            allowNull: false
+    self.Participants = self.sequelize.define('participants', {
+        participants: {
+            type: Sequelize.JSON
         },
-        lastName: {
-            type: Sequelize.STRING
+        latest_creation: {
+            type: Sequelize.DATE
         }
-    }, { 
-        // options
-    });
+    }, { });
+    self.Participants.sync({force: false})
 };
 
-Store.prototype.fetchPersistedParticipants = function(storeName){
+Store.prototype.fetchPersistedParticipants = function() {
     var self = this;
 
     return new Promise(function(resolve, reject) {
         self.sequelize.authenticate().then(() => { 
-            resolve([]);
-            console.log('Connection has been established successfully.');
+            self.Participants.findOne({
+                order: [ [ 'latest_creation', 'DESC' ]]
+            }).then(function(storedParticipants) {
+                resolve(storedParticipants);
+            }).catch(function(error) {
+                reject(error);
+            });
         }).catch(err => {
             reject(err);
         });
-        // MongoClient.connect(self.mongo_url, function(err, db){
-        //     if(err) {
-        //         reject(err);
-        //         return;
-        //     }
-
-        //     db.collection('participants').find({ name: storeName }).limit(1).next(function(err, storeParticipants){
-        //         if(err) {
-        //             reject(err);
-        //             return;
-        //         }
-
-        //         resolve(storeParticipants);
-        //         db.close();
-        //     });
-        // });
     });
 };
 
-Store.prototype.persistParticipantsIn = function(storeName, participants) {
+Store.prototype.persistParticipantsIn = function(participants) {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-
         self.sequelize.authenticate().then(() => { 
-            resolve();
-            console.log('Connection has been established successfully.');
+            self.Participants.create({
+                participants: participants,
+                latest_creation: _.max(_.map(participants, 'create_date'))
+            }).then(function() {
+                resolve();
+            }).catch(function(error) {
+                reject(error);
+            });
         }).catch(err => {
             reject(err);
         });
-        // MongoClient.connect(self.mongo_url, function(err, db){
-        //     if(err) {
-        //         reject(err);
-        //         return;
-        //     }
-
-        //     db.collection('participants').updateOne({ name: storeName }, { $set: {
-        //         name: storeName,
-        //         participants: participants,
-        //         latest_creation: _.max(_.map(participants, 'create_date'))
-        //     } }, function(err, r){
-        //         if(err) {
-        //             reject(err);
-        //             return;
-        //         }
-
-        //         resolve();
-        //         db.close();
-        //     });
-        // });
     });
 };
 

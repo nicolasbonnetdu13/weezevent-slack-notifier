@@ -41,7 +41,7 @@ server.get('/checkParticipants', function (req, res, next) {
   Promise.all([
     we.fetchWZParticipants(),
     we.fetchWZEventTickets(),
-    store.fetchPersistedParticipants("bdxio")
+    store.fetchPersistedParticipants()
   ]).then(function(promResults) {
     var wzParticipants = promResults[0];
     var wzTickets = promResults[1];
@@ -54,7 +54,7 @@ server.get('/checkParticipants', function (req, res, next) {
     var slackMsg = msgProducer.produceMessageFrom(persistedParticipants, bdxioParticipants);
     if(slackMsg){
         slk.sendMessage(slackMsg);
-        store.persistParticipantsIn("bdxio", bdxioParticipants);
+        store.persistParticipantsIn(bdxioParticipants);
     }
   }, (error) => console.error(error));
   res.send(200)
