@@ -5,7 +5,7 @@ function SlackMessageProducer(){
 
 function writeParticipants(participants) {
     return _.map(participants, function(participant){
-        return participant.first_name+" "+participant.last_name+(participant.paid?" (Payé "+participant.ticket_price+"chf)":"(Non Payé)");
+        return participant.first_name+" "+participant.last_name+" "+(participant.paid?(participant.origin==="saisir"?"(Ajout manuel)":"(Payé "+participant.ticket_price+"chf)"):"(Non Payé)");
     }).join(", ");
 };
 
@@ -95,6 +95,7 @@ SlackMessageProducer.prototype.convertWZParticipantsToBDXIOParticipants = functi
                     refund: false,
                     create_date: null,
                     paid: true,
+                    origin: "__unknown__",
                     first_name: wzParticipant.buyer.acheteur_first_name,
                     last_name: wzParticipant.buyer.acheteur_last_name,
                     company: _.map(_.filter(wzParticipant.answers, function(answ){ return answ.label === 'Societe'; }), "value").join("")
@@ -108,6 +109,7 @@ SlackMessageProducer.prototype.convertWZParticipantsToBDXIOParticipants = functi
                     refund: wzParticipant.refund,
                     create_date: wzParticipant.create_date,
                     paid: wzParticipant.paid,
+                    origin: wzParticipant.owner.origin,
                     first_name: wzParticipant.owner.first_name,
                     last_name: wzParticipant.owner.last_name,
                     company: _.map(_.filter(wzParticipant.answers, function(answ){ return answ.label === 'Societe'; }), "value").join("")
