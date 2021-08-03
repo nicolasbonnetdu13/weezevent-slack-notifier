@@ -5,7 +5,7 @@ function SlackMessageProducer(){
 
 function writeParticipants(participants) {
     return _.map(participants, function(participant){
-        return participant.first_name+" "+participant.last_name+(participant.company?" ("+participant.company+")":"");
+        return participant.first_name+" "+participant.last_name+(participant.paid?" (Payé "+participant.ticket_price+"€)":"(Non Payé)");
     }).join(", ");
 };
 
@@ -42,7 +42,7 @@ SlackMessageProducer.prototype.produceMessageFrom = function(persistedParticipan
     }
 
     // Because emojis are important on slack ! \o/
-    return msg+"\n:tada::tada::tada:";
+    return msg;
 };
 
 SlackMessageProducer.prototype.convertWZParticipantsToBDXIOParticipants = function(wzParticipants, wzTickets) {
@@ -54,6 +54,7 @@ SlackMessageProducer.prototype.convertWZParticipantsToBDXIOParticipants = functi
                 return {
                     id: wzParticipant.buyer.id_acheteur,
                     ticket: "__unknown__",
+                    ticket_price: 0,
                     deleted: false,
                     refund: false,
                     create_date: null,
@@ -66,6 +67,7 @@ SlackMessageProducer.prototype.convertWZParticipantsToBDXIOParticipants = functi
                 return {
                     id: wzParticipant.id_participant,
                     ticket: ticketsById[wzParticipant.id_ticket].name,
+                    ticket_price: ticketsById[wzParticipant.id_ticket].price,
                     deleted: wzParticipant.deleted,
                     refund: wzParticipant.refund,
                     create_date: wzParticipant.create_date,
