@@ -5,7 +5,7 @@ function SlackMessageProducer(){
 
 function writeParticipants(participants) {
     return _.map(participants, function(participant){
-        return participant.first_name+" "+participant.last_name+(participant.paid?" (Payé "+participant.ticket_price+"€)":"(Non Payé)");
+        return participant.first_name+" "+participant.last_name+(participant.paid?" (Payé "+participant.ticket_price+"chf)":"(Non Payé)");
     }).join(", ");
 };
 
