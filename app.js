@@ -7,7 +7,7 @@ var Store = require('./store');
 var SlackMessageProducer = require('./msgProducer');
 
 var requiredEnvKeysFilled = true;
-_.each(['WZ_USER', 'WZ_PWD', 'WZ_API', 'WZ_EVT_ID', 'SLK_HOOK_URL', 'SLK_USERNAME', 'MNG_URL'], function(requiredEnvKey){
+_.each(['WZ_USER', 'WZ_PWD', 'WZ_API', 'WZ_EVT_ID', 'SLK_HOOK_URL', 'SLK_USERNAME', 'DATABASE_URL'], function(requiredEnvKey){
   if(!process.env[requiredEnvKey]) {
     console.error("Missing mandatory environment key : %s", requiredEnvKey);
     requiredEnvKeysFilled = false;
@@ -29,7 +29,7 @@ var slk = new Slack({
   slk_user_name: process.env.SLK_USERNAME
 });
 var store = new Store({
-  mongo_url: process.env.MNG_URL
+  db_url: process.env.DATABASE_URL
 });
 var msgProducer = new SlackMessageProducer();
 
