@@ -51,7 +51,7 @@ server.get('/checkParticipants', function (req, res, next) {
     console.log("wzParticipants: %s", JSON.stringify(bdxioParticipants));
     console.log("persistedParticipants : %s", JSON.stringify(persistedParticipants));
 
-    var slackMsg = msgProducer.produceMessageFrom(persistedParticipants, bdxioParticipants);
+    var slackMsg = msgProducer.produceMessageForLastParticipants(persistedParticipants, bdxioParticipants);
     if(slackMsg){
         slk.sendMessage(slackMsg);
         store.persistParticipantsIn(bdxioParticipants);
@@ -71,7 +71,7 @@ server.post('/allParticipants', function (req, res, next) {
       
     console.log("wzParticipants: %s", JSON.stringify(bdxioParticipants));
 
-    var slackMsg = msgProducer.produceMessageFrom(bdxioParticipants);
+    var slackMsg = msgProducer.produceMessageForAllParticipants(bdxioParticipants);
     if(slackMsg){
         slk.sendMessage(slackMsg);
     }

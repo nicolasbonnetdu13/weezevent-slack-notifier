@@ -9,7 +9,7 @@ function writeParticipants(participants) {
     }).join(", ");
 };
 
-SlackMessageProducer.prototype.produceMessageFrom = function(persistedParticipants, upToDateFetchedParticipants){
+SlackMessageProducer.prototype.produceMessageForLastParticipants = function(persistedParticipants, upToDateFetchedParticipants){
     var thresholdDate = persistedParticipants.latest_creation?Date.parse(persistedParticipants.latest_creation):0;
 
     var newParticipantsByTicket = _(upToDateFetchedParticipants)
@@ -19,7 +19,7 @@ SlackMessageProducer.prototype.produceMessageFrom = function(persistedParticipan
             // Grouping by ticket type
         }).groupBy('ticket').value();
 
-    var msg = ':tada:',
+    var msg = ':tada: ',
         ticketTypes = _.keys(newParticipantsByTicket),
         newParticipantsCount = _(newParticipantsByTicket).values().flatten().value().length,
         plural = newParticipantsCount>=2;
@@ -45,7 +45,7 @@ SlackMessageProducer.prototype.produceMessageFrom = function(persistedParticipan
     return msg;
 };
 
-SlackMessageProducer.prototype.produceMessageFrom = function(upToDateFetchedParticipants){
+SlackMessageProducer.prototype.produceMessageForAllParticipants = function(upToDateFetchedParticipants){
     var thresholdDate = 0;
 
     var allParticipantsByTicket = _(upToDateFetchedParticipants)
@@ -55,14 +55,14 @@ SlackMessageProducer.prototype.produceMessageFrom = function(upToDateFetchedPart
             // Grouping by ticket type
         }).groupBy('ticket').value();
 
-    var msg = ':tada:',
+    var msg = ':tada: ',
         ticketTypes = _.keys(allParticipantsByTicket),
         newParticipantsCount = _(allParticipantsByTicket).values().flatten().value().length,
         plural = newParticipantsCount>=2;
 
     if(ticketTypes.length === 0) {
         // Returning null won't trigger slack bot
-        return null;
+        return ":sob: Désolé mais il n'y a aucun participants d'inscrit.";
     } else if(ticketTypes.length === 1) {
         // If we only have 1 type of ticket price concerned, using the one-line-formatted message
         msg += newParticipantsCount+" place"+(plural?"s":"")+" de type "+ticketTypes[0]+" se sont vendue"+(plural?"s":"")+" à : "+writeParticipants(allParticipantsByTicket[ticketTypes[0]]);
