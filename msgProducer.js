@@ -55,7 +55,7 @@ SlackMessageProducer.prototype.produceMessageForAllParticipants = function(upToD
             // Grouping by ticket type
         }).groupBy('ticket').value();
 
-    var msg = ':tada: ',
+    var msg = 'Liste de tous les participants ayant un billet:\n',
         ticketTypes = _.keys(allParticipantsByTicket),
         newParticipantsCount = _(allParticipantsByTicket).values().flatten().value().length,
         plural = newParticipantsCount>=2;
